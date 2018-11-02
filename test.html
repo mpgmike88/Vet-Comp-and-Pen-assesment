@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body ng-style="myStyle"  ng-app="myApp" ng-controller="myCtrl">
+</div>
+<form name="myForm" >
+  <input type="text" name="name" placeholder="Pet Name" ng-model="pet_name" />
+  <input type="number" name="age" placeholder="Age?" ng-model="pet_age" />
+  <input type="text" name="pet_sounds" placeholder="What does this pet say?" ng-model="pet_sounds"/><br>
+  <label>Cat:
+    <input type="checkbox" ng-model="pet_species"
+    ng-true-value="'Cat'" >
+  </label>
+    <label>Dog:
+    <input type="checkbox" ng-model="pet_species"
+    ng-true-value="'Dog'" >
+   </label><br/>
+   <input type="submit" value="Submit" ng-required="pet_name"ng-click="addPet()"  />
+
+
+ </form>
+ <table border="2" ng-show="hasData">
+<thead>
+    <caption>Pet List</caption>
+  <tr>
+    <th width="25">ID</th>
+    <th width="25">Name </th>
+    <th width="25">Species</th>
+    <th width="25">Age</th>
+    <th width="25">Says?</th>
+  </tr>
+
+</thead>
+<body >
+  <tr ng-repeat="pet in pets" ng-if="pet.name">
+    <td width="25"> {{pet.id}}</td>
+    <td width="25"> {{pet.name}}</td>
+    <td width="25"> {{pet.species}}</td>
+    <td width="25"> {{pet.age}}</td>
+    <td width="25"> {{pet.says}}</td> <br>
+
+  </tr>
+
+</table>
+<span ng-show="hasData">
+<label>Select Pet by ID</label>
+ <input type="number" style="width:50px;"name="name"
+ ng-model="selected_pet" /><br>
+       <div >Selected Pet: {{pets[selected_pet].name}}
+         <input style="width:100px;" type="text" name="name"
+            placeholder="New Name" ng-model="pet_nameNew" />
+         <input type="button" value="Rename" ng-click="reName()" />
+        </div>
+       <input type="button" ng-style="buttons" value="Speak" ng-click="speak()" />
+       <input type="button" ng-style="buttons" value="Name Lengths" ng-click="nameLengths()" />
+       <input type="button" ng-style="buttons" value="Show Age" ng-click="showAge()" />
+       <input type="button" ng-style="buttons" value="Show Name" ng-click="showName()" />
+       <h2>Output:</h2>
+       <div border="1"class="list" ng-repeat="output in output">
+             {{ output.output}}
+      </div>
+     </span>
+   </body>
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+
+
+  $scope.pet_species= ""
+  $scope.pet_name= ""
+  $scope.pet_sound = "";
+  $scope.pet_sounds = "";
+  $scope.counter=0;
+  $scope.hasData=false;
+  $scope.selected_pet=0;
+  $scope.output=[];
+  $scope.dogSoundDef="bow-wow!"
+  $scope.catSoundDef="meow!"
+$scope.myStyle={
+  "color" : "black",
+  "background-color" : "teal",
+  "font-weight" : "bold",
+  "font-size" : "14px",
+}
+  $scope.buttons = {
+    "border": "black",
+"color" : "black",
+"background-color" : "#D6320F",
+"font-size" : "14px",
+"font-weight" : "bold",
+"padding" : "20px"
+}
+
+
+  $scope.pet_age = "";
+  $scope.pet_oldNames = [];
+  $scope.pets =  [{}];
+
+
+
+
+  //clear part of output buffer if too large
+  $scope.buffer = function(){
+    if($scope.output.length >10){
+        $scope.output = $scope.output.slice(3);
+    }
+  }
+  $scope.showName= function(){
+    $scope.output.push({'output':"The "+$scope.pets[$scope.selected_pet].species + "'s name is "+ $scope.pets[$scope.selected_pet].name+"."});
+  $scope.buffer();
+  }
+  $scope.showAge= function(){
+    $scope.output.push({'output':$scope.pets[$scope.selected_pet].name + " is currently "+ $scope.pets[$scope.selected_pet].age+" years old."});
+  $scope.buffer();
+  }
+//  calculate name lengths
+  $scope.nameLengths= function(){
+                     if($scope.pets[$scope.selected_pet].oldNames === undefined){
+                       $scope.pets[$scope.selected_pet].oldNames.push($scope.pets[$scope.selected_pet].name)
+                     }
+$scope.nameAvgLeng = $scope.pets[$scope.selected_pet].oldNames.join('').length /$scope.pets[$scope.selected_pet].oldNames.length
+$scope.output.push({'output':"The average length of the "+ $scope.pets[$scope.selected_pet].species+"'s name is : "+ $scope.nameAvgLeng+"."});
+$scope.buffer();
+  }
+  //rename pet
+  $scope.reName = function(){
+    $scope.pets[$scope.selected_pet].name = $scope.pet_nameNew;
+    $scope.pets[$scope.selected_pet].oldNames.push($scope.pets[$scope.selected_pet].name);
+
+      $scope.output.push({'output':"The "+ $scope.pets[$scope.selected_pet].species+"'s name has been changed to : "+ $scope.pet_nameNew+"."});
+      $scope.nameLengths();
+      $scope.buffer();
+
+  }
+  $scope.speak = function()
+  {
+//push speak to output
+     $scope.output.push({'output': $scope.pets[$scope.selected_pet].name+" says "+$scope.pets[$scope.selected_pet].says+"."});
+      $scope.pets[$scope.selected_pet].timeSpoken++;
+
+      //check for default cat/dog sound is being using
+     if($scope.pets[$scope.selected_pet].species == "Dog" &&
+      $scope.pets[$scope.selected_pet].says !=$scope.dogSoundDef){
+        $scope.pets[$scope.selected_pet].timeSpoken++;
+        $scope.output.push({'output': "Nah " +$scope.pets[$scope.selected_pet].name+" says "+$scope.dogSoundDef+"."});
+     }
+     else if($scope.pets[$scope.selected_pet].species == "Cat" &&
+      $scope.pets[$scope.selected_pet].says !=$scope.catSoundDef){
+        $scope.pets[$scope.selected_pet].timeSpoken++;
+        $scope.output.push({'output': "Nah " +$scope.pets[$scope.selected_pet].name+" says "+$scope.catSoundDef+"."});
+     }
+     else if ($scope.pets[$scope.selected_pet].species == "Unkown" ){
+       $scope.output.push({'output':"Not sure what "+$scope.pets[$scope.selected_pet].name+" is? well why did it just moo!"});
+        $scope.pets[$scope.selected_pet].timeSpoken++;
+
+     }
+     //handles pet aging after speaking twice
+    if($scope.pets[$scope.selected_pet].timeSpoken % 2 ==  0)
+    {
+      $scope.pets[$scope.selected_pet].age++;
+      $scope.output.push({'output': "Now "+ $scope.pets[$scope.selected_pet].name + " is "+ $scope.pets[$scope.selected_pet].age+ " years old."});
+    }
+    $scope.buffer(); //clears output if gets too full
+  }
+
+  $scope.addPet = function(){
+ if($scope.pet_name ==""){return;}//avoid empty entires on fails submit
+    if($scope.pet_sounds.length == 0 || $scope.pet_sounds === undefined)
+    {
+          $scope.pet_sound = ($scope.pet_species=="Dog" ? "bow-wow!" : "meow!");
+    }
+    else
+    {
+      $scope.pet_sound = $scope.pet_sounds;
+    }
+    if($scope.pet_age == 0)//default pet age
+    {
+      $scope.pet_age = 1;
+    }
+      $scope.selected_pet = 1; //set default to first pet in table to be selected
+    if($scope.pet_species == undefined || $scope.pet_species == false)
+    {
+      $scope.pet_species = "Unkown";
+      $scope.pet_sound ="Moo!"
+    }
+    if($scope.pet_name !="")// hide table and buttons until pet is added
+    {
+      $scope.hasData=true;
+      $scope.counter++;
+    }
+  $scope.pets.push({'id':$scope.counter, 'name':$scope.pet_name, 'species':$scope.pet_species, 'age':$scope.pet_age, 'says':$scope.pet_sound, 'timeSpoken': 0, 'oldNames':[$scope.pet_name]});
+
+    }
+
+});
+</script>
+
+</body>
+</html>
